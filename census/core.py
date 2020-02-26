@@ -331,7 +331,7 @@ class ACS5Client(ACSClient):
             geo['in'] += ' tract:{}'.format(tract)
         return self.get(fields, geo=geo, **kwargs)
 
-    @supported_years(2018,2017, 2016, 2015, 2014, 2013, 2012, 2011)
+    @supported_years(2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011)
     def zipcode(self, fields, zcta, **kwargs):
         return self.get(fields, geo={
             'for': 'zip code tabulation area:{}'.format(zcta),
@@ -345,9 +345,9 @@ class ACS5DpClient(ACS5Client):
 
 class ACS5SubjectClient(ACS5Client):
     
-    dataset = 'acs/acs5/subject'
+    dataset = 'acs5/subject'
 
-    years = (2016, 2015, 2014, 2013, 2012, 2011, 2010)
+    years = tuple(range(2018,2009,-1))
 
 
 class ACS3Client(ACSClient):
