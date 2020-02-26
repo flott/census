@@ -13,6 +13,7 @@ __version__ = pkg_resources.require("census")[0].version
 
 ALL = '*'
 
+
 def new_session(*args, **kwargs):
     import requests
     return requests.session(*args, **kwargs)
@@ -36,11 +37,13 @@ def list_or_str(v):
         return v
     return [v]
 
+
 def float_or_str(v):
     try:
         return float(v)
     except ValueError:
         return str(v)
+
 
 def supported_years(*years):
     def inner(func):
@@ -79,6 +82,7 @@ def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
         yield l[i:i + n]
+
 
 def merge(dicts):
     return dict(item for d in dicts for item in d.items())
@@ -187,7 +191,7 @@ class Client(object):
 
             headers = data.pop(0)
             types = [self._field_type(header, year) for header in headers]
-            results = [{header : (cast(item) if item is not None else None)
+            results = [{header: (cast(item) if item is not None else None)
                         for header, cast, item
                         in zip(headers, types, d)}
                        for d in data]
@@ -204,9 +208,9 @@ class Client(object):
         url = self.definition_url % (year, self.dataset, field)
         resp = self.session.get(url)
 
-        types = {"fips-for" : str,
-                 "fips-in" : str,
-                 "int" : float_or_str,
+        types = {"fips-for": str,
+                 "fips-in": str,
+                 "int": float_or_str,
                  "float": float,
                  "string": str}
 
@@ -242,10 +246,8 @@ class Client(object):
 
     @supported_years()
     def state_district(self, fields, state_fips, district, **kwargs):
-        warnings.warn(
-            "state_district refers to congressional districts; use state_congressional_district instead",
-             DeprecationWarning
-        )
+        warnings.warn("state_district refers to congressional districts; use state_congressional_district instead",
+                      DeprecationWarning)
 
         # throwaway, but we can't pass it in twice.
         congressional_district = kwargs.pop('congressional_district', None)
@@ -273,6 +275,7 @@ class Client(object):
             'in': 'state:{}'.format(state_fips),
         }, **kwargs)
 
+
 class ACSClient(Client):
 
     def _switch_endpoints(self, year):
@@ -297,12 +300,13 @@ class ACSClient(Client):
 
         return super(ACSClient, self).get(*args, **kwargs)
 
+
 class ACS5Client(ACSClient):
 
     default_year = 2018
     dataset = 'acs5'
 
-    years = tuple(range(2018,2008,-1))
+    years = tuple(range(2018, 2008, -1))
 
     @supported_years()
     def state_county_subdivision(self, fields, state_fips,
@@ -337,17 +341,17 @@ class ACS5Client(ACSClient):
             'for': 'zip code tabulation area:{}'.format(zcta),
         }, **kwargs)
 
+
 class ACS5DpClient(ACS5Client):
 
     dataset = 'acs5/profile'
+    years = tuple(range(2018, 2011, -1))
 
-    years = tuple(range(2018,2011,-1))
 
 class ACS5SubjectClient(ACS5Client):
-    
-    dataset = 'acs5/subject'
 
-    years = tuple(range(2018,2009,-1))
+    dataset = 'acs5/subject'
+    years = tuple(range(2018, 2009, -1))
 
 
 class ACS3Client(ACSClient):
@@ -365,6 +369,7 @@ class ACS3Client(ACSClient):
             'in': 'state:{} county:{}'.format(state_fips, county_fips),
         }, **kwargs)
 
+
 class ACS3DpClient(ACS3Client):
 
     dataset = 'acs3/profile'
@@ -375,7 +380,7 @@ class ACS1Client(ACSClient):
     default_year = 2017
     dataset = 'acs1'
 
-    years = tuple(range(2018,2010,-1))
+    years = tuple(range(2018, 2010, -1))
 
     @supported_years()
     def state_county_subdivision(self, fields, state_fips,
@@ -385,11 +390,12 @@ class ACS1Client(ACSClient):
             'in': 'state:{} county:{}'.format(state_fips, county_fips),
         }, **kwargs)
 
+
 class ACS1DpClient(ACS1Client):
 
     dataset = 'acs1/profile'
 
-    years = tuple(range(2018,2011,-1))
+    years = tuple(range(2018, 2011, -1))
 
 
 class SF1Client(Client):
@@ -479,6 +485,7 @@ class SF1Client(Client):
             'in': 'state:{}'.format(state_fips),
         }, **kwargs)
 
+
 class SF3Client(Client):
 
     default_year = 2000
@@ -504,6 +511,7 @@ class SF3Client(Client):
         if tract:
             geo['in'] += ' tract:{}'.format(tract)
         return self.get(fields, geo=geo, **kwargs)
+
 
 class Census(object):
 
